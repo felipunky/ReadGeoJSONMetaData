@@ -1,0 +1,10 @@
+D:\Programas\GrasshopperPlugins\ReadGeoJSON\ReadGeoJSONMetaData\ReadGeoJSONMetaData\ReadGeoJSONMetaData\bin\ReadGeoJSONMetaData.pdb
+D:\Programas\GrasshopperPlugins\ReadGeoJSON\ReadGeoJSONMetaData\ReadGeoJSONMetaData\ReadGeoJSONMetaData\bin\ReadGeoJSONMetaData.dll
+D:\Programas\GrasshopperPlugins\ReadGeoJSON\ReadGeoJSONMetaData\ReadGeoJSONMetaData\ReadGeoJSONMetaData\bin\gdalconst_csharp.dll
+D:\Programas\GrasshopperPlugins\ReadGeoJSON\ReadGeoJSONMetaData\ReadGeoJSONMetaData\ReadGeoJSONMetaData\bin\gdal_csharp.dll
+D:\Programas\GrasshopperPlugins\ReadGeoJSON\ReadGeoJSONMetaData\ReadGeoJSONMetaData\ReadGeoJSONMetaData\bin\ogr_csharp.dll
+D:\Programas\GrasshopperPlugins\ReadGeoJSON\ReadGeoJSONMetaData\ReadGeoJSONMetaData\ReadGeoJSONMetaData\bin\osr_csharp.dll
+D:\Programas\GrasshopperPlugins\ReadGeoJSON\ReadGeoJSONMetaData\ReadGeoJSONMetaData\ReadGeoJSONMetaData\obj\Debug\ReadGeoJSONMetaData.csproj.CoreCompileInputs.cache
+D:\Programas\GrasshopperPlugins\ReadGeoJSON\ReadGeoJSONMetaData\ReadGeoJSONMetaData\ReadGeoJSONMetaData\obj\Debug\ReadGeoJSONMetaData.csproj.CopyComplete
+D:\Programas\GrasshopperPlugins\ReadGeoJSON\ReadGeoJSONMetaData\ReadGeoJSONMetaData\ReadGeoJSONMetaData\obj\Debug\ReadGeoJSONMetaData.dll
+D:\Programas\GrasshopperPlugins\ReadGeoJSON\ReadGeoJSONMetaData\ReadGeoJSONMetaData\ReadGeoJSONMetaData\obj\Debug\ReadGeoJSONMetaData.pdb
