@@ -41,7 +41,8 @@ namespace ReadGeoJSONMetaData
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
 
-            pManager.AddTextParameter("PathToFile", "Path", "Path to directory where the grib2 file resides", GH_ParamAccess.item);
+            pManager.AddTextParameter("PathToFile", "Path", "Path to directory where the GeoJSON file resides", GH_ParamAccess.item);
+            pManager.AddIntegerParameter("FieldToSelect", "Field", "Input the field you want to select from", GH_ParamAccess.item);
 
         }
 
@@ -54,7 +55,8 @@ namespace ReadGeoJSONMetaData
             pManager.AddTextParameter("CatchErrors", "ERR", "Tell if there is an error while loading the libraries", GH_ParamAccess.item);
             pManager.AddIntegerParameter("NumberOfFeatures", "NumFeatures", "Outputs the number of features in the layer", GH_ParamAccess.item);
             pManager.AddTextParameter("Fields", "Flds", "Gets the fields in the layer", GH_ParamAccess.list);
-            pManager.AddPointParameter("Points of polygons", "Points", "Gets the points that compose a polygon", GH_ParamAccess.tree );
+            pManager.AddPointParameter("Points of polygons", "Points", "Gets the points that compose a polygon", GH_ParamAccess.tree);
+            pManager.AddNumberParameter("Output field", "Field", "Outputs the field information", GH_ParamAccess.tree);
 
         }
 
@@ -112,36 +114,29 @@ namespace ReadGeoJSONMetaData
 
             }
 
-            var points = new DataTree<Point3d>();
-            var pointTest = new DataTree<double>();
+            int fieldToSelect = 0;
+            DA.GetData( 1, ref fieldToSelect );
+            
             var pointOut = new DataTree<Point3d>();
-            var pointsCount = new List<int>();
+            var fieldOut = new DataTree<double>();
 
             for( int i = 0; i < numberOfFeatures; ++i )
             {
 
+                var path = new GH_Path( i );
                 var feature = layer.GetFeature( i );
                 var geo = feature.GetGeometryRef();
                 var ring = geo.GetGeometryRef( 0 );
                 int pointCount = ring.GetPointCount();
-                pointsCount.Add( pointCount );
-                
-                ;
+                fieldOut.Add( feature.GetFieldAsDouble( fieldToSelect ), path );
 
                 for ( int j = 0; j < pointCount; ++j )
                 {
-
-                    //points.Add( new Point3d(  ),  );
+           
                     double[] pointList = { 0, 0, 0 };
                     ring.GetPoint( j, pointList );
-                    pointOut.Add( new Point3d( pointList[0], pointList[1], pointList[2] ), new GH_Path( i ) );
-                    //pointOut.Add( new Point3d( 0.0, 0.0, 0.0 ), new GH_Path( i ) );
-
-                    //for( int k = 0; k < pointList.Length; ++k )
-
-                    //pointTest.Add( pointList[k], new GH_Path( i ) );
-
-
+                    pointOut.Add( new Point3d( pointList[0], pointList[1], pointList[2] ), path );
+                    
                 }
 
             }
@@ -150,6 +145,7 @@ namespace ReadGeoJSONMetaData
             DA.SetData( 1, numberOfFeatures );
             DA.SetDataList( 2, fields );
             DA.SetDataTree( 3, pointOut );
+            DA.SetDataTree( 4, fieldOut );
 
         }
 
