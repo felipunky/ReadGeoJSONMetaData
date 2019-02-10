@@ -54,7 +54,7 @@ namespace ReadGeoJSONMetaData
             pManager.AddTextParameter("CatchErrors", "ERR", "Tell if there is an error while loading the libraries", GH_ParamAccess.item);
             pManager.AddIntegerParameter("NumberOfFeatures", "NumFeatures", "Outputs the number of features in the layer", GH_ParamAccess.item);
             pManager.AddTextParameter("Fields", "Flds", "Gets the fields in the layer", GH_ParamAccess.list);
-            pManager.AddNumberParameter("Points of polygons", "Points", "Gets the points that compose a polygon", GH_ParamAccess.list );
+            pManager.AddPointParameter("Points of polygons", "Points", "Gets the points that compose a polygon", GH_ParamAccess.tree );
 
         }
 
@@ -114,36 +114,42 @@ namespace ReadGeoJSONMetaData
 
             var points = new DataTree<Point3d>();
             var pointTest = new DataTree<double>();
-            var pointOut = new List<double>();
+            var pointOut = new DataTree<Point3d>();
+            var pointsCount = new List<int>();
 
             for( int i = 0; i < numberOfFeatures; ++i )
             {
 
                 var feature = layer.GetFeature( i );
                 var geo = feature.GetGeometryRef();
-                var pointCount = geo.GetPointCount();
-                var pointList = new double[pointCount];
+                var ring = geo.GetGeometryRef( 0 );
+                int pointCount = ring.GetPointCount();
+                pointsCount.Add( pointCount );
+                
+                ;
 
-                //for( int j = 0; j < pointCount; ++j )
-                //{
+                for ( int j = 0; j < pointCount; ++j )
+                {
 
                     //points.Add( new Point3d(  ),  );
-                    geo.GetPoint( i, pointList );
-                    pointOut = pointList.ToList();
+                    double[] pointList = { 0, 0, 0 };
+                    ring.GetPoint( j, pointList );
+                    pointOut.Add( new Point3d( pointList[0], pointList[1], pointList[2] ), new GH_Path( i ) );
+                    //pointOut.Add( new Point3d( 0.0, 0.0, 0.0 ), new GH_Path( i ) );
 
                     //for( int k = 0; k < pointList.Length; ++k )
 
                     //pointTest.Add( pointList[k], new GH_Path( i ) );
 
 
-                //}
+                }
 
             }
             
             DA.SetData( 0, output );
             DA.SetData( 1, numberOfFeatures );
             DA.SetDataList( 2, fields );
-            DA.SetDataList( 3, pointOut );
+            DA.SetDataTree( 3, pointOut );
 
         }
 
