@@ -10,6 +10,7 @@ using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
 using Rhino.Geometry;
 using GH_IO;
+using Grasshopper.Kernel.Data;
 
 // In order to load the result of this wizard, you will also need to
 // add the output bin/ folder of this project to the list of loaded
@@ -18,7 +19,7 @@ using GH_IO;
 
 namespace ReadGeoJSONMetaData
 {
-    public class ReadGeoJSONMetaDataComponent : GH_Component
+    public class ReadGeoJSONComponent : GH_Component
     {
         /// <summary>
         /// Each implementation of GH_Component must provide a public 
@@ -27,8 +28,8 @@ namespace ReadGeoJSONMetaData
         /// Subcategory the panel. If you use non-existing tab or panel names, 
         /// new tabs/panels will automatically be created.
         /// </summary>
-        public ReadGeoJSONMetaDataComponent()
-          : base("ReadGeoJSONMetaData", "ReadGJSONMeta",
+        public ReadGeoJSONComponent()
+          : base("ReadGeoJSON", "ReadGJSON",
               "Reads the fields of the layer from a GEOJSON",
               "THR34D5Workshop", "ExtractData")
         {
@@ -40,8 +41,8 @@ namespace ReadGeoJSONMetaData
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
 
-            pManager.AddTextParameter( "PathToFile", "Path", "Path to directory where the grib2 file resides", GH_ParamAccess.item );
- 
+            pManager.AddTextParameter("PathToFile", "Path", "Path to directory where the grib2 file resides", GH_ParamAccess.item);
+
         }
 
         /// <summary>
@@ -50,8 +51,10 @@ namespace ReadGeoJSONMetaData
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
 
-            pManager.AddTextParameter( "CatchErrors", "ERR", "Tell if there is an error while loading the libraries", GH_ParamAccess.item );
-            pManager.AddIntegerParameter( "NumberOfFeatures", "NumFeatures", "Outputs the number of features in the layer", GH_ParamAccess.item );
+            pManager.AddTextParameter("CatchErrors", "ERR", "Tell if there is an error while loading the libraries", GH_ParamAccess.item);
+            pManager.AddIntegerParameter("NumberOfFeatures", "NumFeatures", "Outputs the number of features in the layer", GH_ParamAccess.item);
+            pManager.AddTextParameter("Fields", "Flds", "Gets the fields in the layer", GH_ParamAccess.list);
+            pManager.AddNumberParameter("Points of polygons", "Points", "Gets the points that compose a polygon", GH_ParamAccess.list );
 
         }
 
@@ -88,18 +91,59 @@ namespace ReadGeoJSONMetaData
 
             DA.GetData( 0, ref input );
 
-            //var ds = OSGeo.GDAL.Gdal.OpenEx( @"D:\SSS\GIS\Nucleos\Nucleos_1549125498284.geojson", 0, null, null, null );
             var driver = OSGeo.OGR.Ogr.GetDriverByName( "GeoJSON" );
-            var ds = driver.Open( @"D:\SSS\GIS\Nucleos\Nucleos_1549125498284.geojson", 0 );
+            var ds = driver.Open( input, 0 );
 
             long numberOfFeatures = 0;
+            int fieldCount = 0;
             
             var layer = ds.GetLayerByIndex( 0 );
+            var layerDefinition = layer.GetLayerDefn();
 
             numberOfFeatures = unchecked( ( int ) layer.GetFeatureCount( 0 ) );
+            fieldCount = layerDefinition.GetFieldCount();
+
+            var fields = new List<string>();
+
+            for( int i = 0; i < fieldCount; ++i )
+            {
+                
+                fields.Add( layerDefinition.GetFieldDefn(i).GetName() );
+
+            }
+
+            var points = new DataTree<Point3d>();
+            var pointTest = new DataTree<double>();
+            var pointOut = new List<double>();
+
+            for( int i = 0; i < numberOfFeatures; ++i )
+            {
+
+                var feature = layer.GetFeature( i );
+                var geo = feature.GetGeometryRef();
+                var pointCount = geo.GetPointCount();
+                var pointList = new double[pointCount];
+
+                //for( int j = 0; j < pointCount; ++j )
+                //{
+
+                    //points.Add( new Point3d(  ),  );
+                    geo.GetPoint( i, pointList );
+                    pointOut = pointList.ToList();
+
+                    //for( int k = 0; k < pointList.Length; ++k )
+
+                    //pointTest.Add( pointList[k], new GH_Path( i ) );
+
+
+                //}
+
+            }
             
             DA.SetData( 0, output );
             DA.SetData( 1, numberOfFeatures );
+            DA.SetDataList( 2, fields );
+            DA.SetDataList( 3, pointOut );
 
         }
 

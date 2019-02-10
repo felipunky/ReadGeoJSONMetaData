@@ -8,3 +8,4 @@ D:\Programas\GrasshopperPlugins\ReadGeoJSON\ReadGeoJSONMetaData\ReadGeoJSONMetaD
 D:\Programas\GrasshopperPlugins\ReadGeoJSON\ReadGeoJSONMetaData\ReadGeoJSONMetaData\ReadGeoJSONMetaData\obj\Debug\ReadGeoJSONMetaData.csproj.CopyComplete
 D:\Programas\GrasshopperPlugins\ReadGeoJSON\ReadGeoJSONMetaData\ReadGeoJSONMetaData\ReadGeoJSONMetaData\obj\Debug\ReadGeoJSONMetaData.dll
 D:\Programas\GrasshopperPlugins\ReadGeoJSON\ReadGeoJSONMetaData\ReadGeoJSONMetaData\ReadGeoJSONMetaData\obj\Debug\ReadGeoJSONMetaData.pdb
+D:\Programas\GrasshopperPlugins\ReadGeoJSON\ReadGeoJSONMetaData\ReadGeoJSONMetaData\ReadGeoJSONMetaData\obj\Debug\ReadGeoJSONMetaData.csprojAssemblyReference.cache
