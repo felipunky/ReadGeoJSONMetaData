@@ -76,6 +76,7 @@
     <Compile Include="ReadGeoJSONMetaDataInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReadSHP.cs" />
+    <Compile Include="ShapeFileFieldExtractor.cs" />
     <Compile Include="WebMercatorProjection.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -8,14 +8,14 @@ using Rhino.Geometry;
 
 namespace ReadGeoJSONMetaData
 {
-    public class ReadSHP : GH_Component
+    public class ShapeFileFieldExtractor : GH_Component
     {
         /// <summary>
-        /// Initializes a new instance of the ReadSHP class.
+        /// Initializes a new instance of the ShapeFileFieldExtractor class.
         /// </summary>
-        public ReadSHP()
-          : base("ReadShapefile", "ReadSHP",
-              "Reads a shapefile",
+        public ShapeFileFieldExtractor()
+          : base("ShapeFileFieldExtractor", "SHPFields",
+              "Extracts the desired field from a SHP file",
               "THR34D5Workshop", "ExtractData")
         {
         }
@@ -27,8 +27,10 @@ namespace ReadGeoJSONMetaData
         {
 
             pManager.AddTextParameter("Path to file", "Path", "Path to directory where the Shapefile file resides", GH_ParamAccess.item);
-            pManager.AddBooleanParameter("Parallel computation", "Parallel", "If the data is too large the computation may benefit from parallelization", GH_ParamAccess.item);
+            pManager.AddIntegerParameter("Field to select", "Field", "Input the field you want to select from", GH_ParamAccess.item);
             pManager[1].Optional = true;
+            /*pManager.AddBooleanParameter("Parallel computation", "Parallel", "If the data is too large the computation may benefit from parallelization", GH_ParamAccess.item);
+            pManager[2].Optional = true;*/
 
         }
 
@@ -39,8 +41,9 @@ namespace ReadGeoJSONMetaData
         {
 
             pManager.AddTextParameter("CatchErrors", "ERR", "Tell if there is an error while loading the libraries", GH_ParamAccess.item);
-            pManager.AddNumberParameter("Latitude of polygons", "Latitude", "Gets the latitudes that compose a polygon", GH_ParamAccess.tree);
-            pManager.AddNumberParameter("Longitude of polygons", "Longitude", "Gets the longitude that compose a polygon", GH_ParamAccess.tree);
+            pManager.AddIntegerParameter("NumberOfFeatures", "NumFeatures", "Outputs the number of features in the layer", GH_ParamAccess.item);
+            pManager.AddTextParameter("Fields", "Flds", "Gets the fields in the layer", GH_ParamAccess.list);
+            pManager.AddGenericParameter("Output field", "Field", "Outputs the field information", GH_ParamAccess.list);
 
         }
 
@@ -99,94 +102,91 @@ namespace ReadGeoJSONMetaData
 
                 else
                 {
-                   
-                    Grasshopper.DataTree<double> latitudesOut = new Grasshopper.DataTree<double>(), longitudesOut = new Grasshopper.DataTree<double>();
 
                     long numberOfFeatures = 0;
+                    int fieldCount = 0;
+
+                    int fieldSelector = 0;
+
+                    DA.GetData( 1, ref fieldSelector );
 
                     var layer = ds.GetLayerByIndex(0);
+                    var layerDefinition = layer.GetLayerDefn();
 
                     numberOfFeatures = unchecked((int)layer.GetFeatureCount(0));
+                    fieldCount = layerDefinition.GetFieldCount();
 
-                    bool parallel = false;
+                    string[] fields = new string[fieldCount];
 
-                    DA.GetData( 1, ref parallel );
+                    object[] fieldOut = new object[numberOfFeatures];
 
-                    GH_Path path = new GH_Path();
+                    for( int i = 0; i < fieldCount; ++i )
+                    {
+
+                        fields[i] = layerDefinition.GetFieldDefn(i).GetName();
+
+                    }
+
+                    int fieldToSelect = 0;
+                    DA.GetData( 1, ref fieldToSelect );
+
+                    //bool parallel = false;
+
+                    //DA.GetData( 2, ref parallel );
 
                     OSGeo.OGR.Feature feature = null;
-                    OSGeo.OGR.Geometry geo = null, ring = null;
 
-                    if( parallel == false )
+                    //if( parallel == false )
                     {
 
                         for( int i = 0; i < numberOfFeatures; ++i )
                         {
-
-                            path = new GH_Path(i);
-                            feature = layer.GetFeature(i);
-                            geo = feature.GetGeometryRef();
-                            ring = geo.GetGeometryRef(0);
-                            int pointCount = ring.GetPointCount();
-
-                            for (int j = 0; j < pointCount; ++j)
-                            {
-
-                                double[] pointList = { 0, 0 };
-                                ring.GetPoint_2D(j, pointList);
                             
-                                latitudesOut.Add( pointList[1], path );
-                                longitudesOut.Add( pointList[0], path );
-
-                            }
+                            feature = layer.GetFeature(i);
+                            fieldOut[i] = feature.GetFieldAsString( fieldSelector );
 
                         }
 
                     }
 
-                    else
+                    /*else
                     {
 
-                        double[][] latMat = new double[numberOfFeatures][];
-                        double[][] lonMat = new double[numberOfFeatures][];
-
-                        for( int i = 0; i < numberOfFeatures; ++i )
+                        try
                         {
 
-                            path = new GH_Path(i);
-                            feature = layer.GetFeature(i);
-                            geo = feature.GetGeometryRef();
-                            ring = geo.GetGeometryRef(0);
-                            int pointCount = ring.GetPointCount();
+                            object locker = new object();
 
-                            latMat[i] = new double[pointCount];
-                            lonMat[i] = new double[pointCount];
-                            
-                            System.Threading.Tasks.Parallel.For(0, pointCount, j =>
+                            System.Threading.Tasks.Parallel.For( 0, numberOfFeatures, i => 
                             {
 
-                                double[] pointList = { 0, 0 };
-                                ring.GetPoint_2D(j, pointList);
+                                feature = layer.GetFeature(i);
 
-                                latMat[i][j] = pointList[1];
-                                lonMat[i][j] = pointList[0];
+                                lock( locker )
+                                { 
+
+                                    fieldOut[i] = feature.GetFieldAsString( fieldSelector );
+
+                                }
+
+                                //feature = null;
 
                             });
 
-                            if( pointCount > 0 )
-                            {
+                        }
 
-                                latitudesOut.AddRange( latMat[i], path );
-                                longitudesOut.AddRange( lonMat[i], path );
+                        catch( Exception e )
+                        {
 
-                            }
+                            output = "{0} Exception caught. " + e;
 
                         }
 
-                    }
-                    
-                    DA.SetDataTree( 1, latitudesOut );
-                    DA.SetDataTree( 2, longitudesOut );
+                    }*/
+
+                    DA.SetData( 1, numberOfFeatures );
+                    DA.SetDataList( 2, fields );
+                    DA.SetDataList( 3, fieldOut );
 
                 }
 
@@ -214,7 +214,7 @@ namespace ReadGeoJSONMetaData
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("a2e3c03b-0df9-4538-badd-0070388622a2"); }
+            get { return new Guid("756e3509-48a9-43a6-b2a3-4266d549c3dc"); }
         }
     }
 }

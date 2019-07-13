@@ -43,8 +43,8 @@ namespace ReadGeoJSONMetaData
         {
             List<double> latitudes = new List<double>();
             List<double> longitudes = new List<double>();
-            DA.GetDataList<double>(1, latitudes);
-            DA.GetDataList<double>(2, longitudes);
+            DA.GetDataList<double>(2, latitudes);
+            DA.GetDataList<double>(1, longitudes);
 
             int size = latitudes.Count;
 
