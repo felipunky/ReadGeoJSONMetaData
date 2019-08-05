@@ -39,8 +39,9 @@ namespace ReadGeoJSONMetaData
         {
 
             pManager.AddTextParameter("CatchErrors", "ERR", "Tell if there is an error while loading the libraries", GH_ParamAccess.item);
-            pManager.AddNumberParameter("Latitude of polygons", "Latitude", "Gets the latitudes that compose a polygon", GH_ParamAccess.tree);
-            pManager.AddNumberParameter("Longitude of polygons", "Longitude", "Gets the longitude that compose a polygon", GH_ParamAccess.tree);
+            pManager.AddNumberParameter("Latitude of geometry", "Latitude", "Gets the latitudes of the geometry", GH_ParamAccess.tree);
+            pManager.AddNumberParameter("Longitude of geometry", "Longitude", "Gets the longitude of the geometry", GH_ParamAccess.tree);
+            pManager.AddNumberParameter("Altitude of geometry", "Altitude", "Gets the altitude of the geometry", GH_ParamAccess.tree);
 
         }
 
@@ -100,7 +101,7 @@ namespace ReadGeoJSONMetaData
                 else
                 {
                    
-                    Grasshopper.DataTree<double> latitudesOut = new Grasshopper.DataTree<double>(), longitudesOut = new Grasshopper.DataTree<double>();
+                    Grasshopper.DataTree<double> latitudesOut = new Grasshopper.DataTree<double>(), longitudesOut = new Grasshopper.DataTree<double>(), altitudesOut = new Grasshopper.DataTree<double>();
 
                     long numberOfFeatures = 0;
 
@@ -137,11 +138,12 @@ namespace ReadGeoJSONMetaData
                                 for (int j = 0; j < pointCount; ++j)
                                 {
 
-                                    double[] pointList = { 0, 0 };
-                                    ring.GetPoint_2D(j, pointList);
+                                    double[] pointList = { 0, 0, 0 };
+                                    ring.GetPoint(j, pointList);
                             
                                     latitudesOut.Add( pointList[1], path );
                                     longitudesOut.Add( pointList[0], path );
+                                    altitudesOut.Add( pointList[2], path );
 
                                 }
 
@@ -163,11 +165,48 @@ namespace ReadGeoJSONMetaData
                                 for (int j = 0; j < pointCount; ++j)
                                 {
 
-                                    double[] pointList = { 0, 0 };
-                                    geo.GetPoint_2D(j, pointList);
+                                    double[] pointList = { 0, 0, 0 };
+                                    geo.GetPoint(j, pointList);
                             
                                     latitudesOut.Add( pointList[1], path );
                                     longitudesOut.Add( pointList[0], path );
+                                    altitudesOut.Add( pointList[2], path );
+
+                                }
+
+                            }
+
+                        }
+
+                        else if( geoType == "wkbPoint" )
+                        {
+
+                            for( int i = 0; i < numberOfFeatures; ++i )
+                            {
+
+                                path = new GH_Path(i);
+
+                                try
+                                { 
+
+                                    feature = layer.GetFeature(i);
+
+                                    geo = feature.GetGeometryRef();
+
+                                    double[] pointList = { 0, 0, 0 };
+
+                                    geo.GetPoint(0, pointList);
+
+                                    latitudesOut.Add(pointList[1], path);
+                                    longitudesOut.Add(pointList[0], path);
+                                    altitudesOut.Add(pointList[2], path);
+
+                                }
+
+                                catch( Exception e )
+                                {
+
+                                    output = "{0} Exception caught. " + e;
 
                                 }
 
@@ -189,6 +228,7 @@ namespace ReadGeoJSONMetaData
 
                         double[][] latMat = new double[numberOfFeatures][];
                         double[][] lonMat = new double[numberOfFeatures][];
+                        double[][] altMat = new double[numberOfFeatures][];
 
                         if( geoType == "wkbPolygon" )
                         { 
@@ -204,15 +244,17 @@ namespace ReadGeoJSONMetaData
 
                                 latMat[i] = new double[pointCount];
                                 lonMat[i] = new double[pointCount];
-                            
+                                altMat[i] = new double[pointCount];
+
                                 System.Threading.Tasks.Parallel.For(0, pointCount, j =>
                                 {
 
-                                    double[] pointList = { 0, 0 };
-                                    ring.GetPoint_2D(j, pointList);
+                                    double[] pointList = { 0, 0, 0 };
+                                    ring.GetPoint(j, pointList);
 
                                     latMat[i][j] = pointList[1];
                                     lonMat[i][j] = pointList[0];
+                                    altMat[i][j] = pointList[2];
 
                                 });
 
@@ -221,6 +263,7 @@ namespace ReadGeoJSONMetaData
 
                                     latitudesOut.AddRange( latMat[i], path );
                                     longitudesOut.AddRange( lonMat[i], path );
+                                    altitudesOut.AddRange( altMat[i], path );
 
                                 }
 
@@ -241,15 +284,17 @@ namespace ReadGeoJSONMetaData
 
                                 latMat[i] = new double[pointCount];
                                 lonMat[i] = new double[pointCount];
+                                altMat[i] = new double[pointCount];
 
                                 System.Threading.Tasks.Parallel.For( 0, pointCount, j => 
                                 {
 
-                                    double[] pointList = { 0, 0 };
-                                    geo.GetPoint_2D( j, pointList );
+                                    double[] pointList = { 0, 0, 0 };
+                                    geo.GetPoint( j, pointList );
 
                                     latMat[i][j] = pointList[1];
                                     lonMat[i][j] = pointList[0];
+                                    altMat[i][j] = pointList[2];
 
                                 });
 
@@ -258,6 +303,7 @@ namespace ReadGeoJSONMetaData
 
                                     latitudesOut.AddRange( latMat[i], path );
                                     longitudesOut.AddRange( lonMat[i], path );
+                                    altitudesOut.AddRange( altMat[i], path );
 
                                 }
 
@@ -276,6 +322,7 @@ namespace ReadGeoJSONMetaData
                     
                     DA.SetDataTree( 1, latitudesOut );
                     DA.SetDataTree( 2, longitudesOut );
+                    DA.SetDataTree( 3, altitudesOut );
 
                 }
 

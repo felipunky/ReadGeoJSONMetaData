@@ -9,3 +9,11 @@ D:\Programas\GrasshopperPlugins\ReadGeoJSON\ReadGeoJSONMetaData\ReadGeoJSONMetaD
 D:\Programas\GrasshopperPlugins\ReadGeoJSON\ReadGeoJSONMetaData\ReadGeoJSONMetaData\ReadGeoJSONMetaData\obj\Release\ReadGeoJSONMetaData.dll
 D:\Programas\GrasshopperPlugins\ReadGeoJSON\ReadGeoJSONMetaData\ReadGeoJSONMetaData\ReadGeoJSONMetaData\obj\Release\ReadGeoJSONMetaData.pdb
 D:\Programas\GrasshopperPlugins\ReadGeoJSON\ReadGeoJSONMetaData\ReadGeoJSONMetaData\ReadGeoJSONMetaData\obj\Release\ReadGeoJSONMetaData.csprojAssemblyReference.cache
+C:\Users\Paula\Documents\Visual Studio 2017\Projects\ReadGeoJSONMetaData\ReadGeoJSONMetaData\bin\ReadGeoJSONMetaData.dll
+C:\Users\Paula\Documents\Visual Studio 2017\Projects\ReadGeoJSONMetaData\ReadGeoJSONMetaData\bin\ReadGeoJSONMetaData.pdb
+C:\Users\Paula\Documents\Visual Studio 2017\Projects\ReadGeoJSONMetaData\ReadGeoJSONMetaData\bin\gdalconst_csharp.dll
+C:\Users\Paula\Documents\Visual Studio 2017\Projects\ReadGeoJSONMetaData\ReadGeoJSONMetaData\bin\gdal_csharp.dll
+C:\Users\Paula\Documents\Visual Studio 2017\Projects\ReadGeoJSONMetaData\ReadGeoJSONMetaData\bin\ogr_csharp.dll
+C:\Users\Paula\Documents\Visual Studio 2017\Projects\ReadGeoJSONMetaData\ReadGeoJSONMetaData\bin\osr_csharp.dll
+C:\Users\Paula\Documents\Visual Studio 2017\Projects\ReadGeoJSONMetaData\ReadGeoJSONMetaData\obj\Release\ReadGeoJSONMetaData.dll
+C:\Users\Paula\Documents\Visual Studio 2017\Projects\ReadGeoJSONMetaData\ReadGeoJSONMetaData\obj\Release\ReadGeoJSONMetaData.pdb
