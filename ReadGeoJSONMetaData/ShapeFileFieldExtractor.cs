@@ -44,6 +44,7 @@ namespace ReadGeoJSONMetaData
             pManager.AddIntegerParameter("NumberOfFeatures", "NumFeatures", "Outputs the number of features in the layer", GH_ParamAccess.item);
             pManager.AddTextParameter("Fields", "Flds", "Gets the fields in the layer", GH_ParamAccess.list);
             pManager.AddGenericParameter("Output field", "Field", "Outputs the field information", GH_ParamAccess.list);
+            pManager.AddTextParameter("Geometry type", "GeoType", "Outputs the geometry type of the Shapefile", GH_ParamAccess.item);
 
         }
 
@@ -111,6 +112,9 @@ namespace ReadGeoJSONMetaData
                     DA.GetData( 1, ref fieldSelector );
 
                     var layer = ds.GetLayerByIndex(0);
+
+                    string geoType = layer.GetGeomType().ToString();
+
                     var layerDefinition = layer.GetLayerDefn();
 
                     numberOfFeatures = unchecked((int)layer.GetFeatureCount(0));
@@ -187,6 +191,7 @@ namespace ReadGeoJSONMetaData
                     DA.SetData( 1, numberOfFeatures );
                     DA.SetDataList( 2, fields );
                     DA.SetDataList( 3, fieldOut );
+                    DA.SetData( 4, geoType );
 
                 }
 

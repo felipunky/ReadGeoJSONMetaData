@@ -106,6 +106,8 @@ namespace ReadGeoJSONMetaData
 
                     var layer = ds.GetLayerByIndex(0);
 
+                    string geoType = layer.GetGeomType().ToString();
+
                     numberOfFeatures = unchecked((int)layer.GetFeatureCount(0));
 
                     bool parallel = false;
@@ -120,25 +122,63 @@ namespace ReadGeoJSONMetaData
                     if( parallel == false )
                     {
 
-                        for( int i = 0; i < numberOfFeatures; ++i )
+                        if( geoType == "wkbPolygon" )
                         {
 
-                            path = new GH_Path(i);
-                            feature = layer.GetFeature(i);
-                            geo = feature.GetGeometryRef();
-                            ring = geo.GetGeometryRef(0);
-                            int pointCount = ring.GetPointCount();
-
-                            for (int j = 0; j < pointCount; ++j)
+                            for( int i = 0; i < numberOfFeatures; ++i )
                             {
 
-                                double[] pointList = { 0, 0 };
-                                ring.GetPoint_2D(j, pointList);
+                                path = new GH_Path(i);
+                                feature = layer.GetFeature(i);
+                                geo = feature.GetGeometryRef();
+                                ring = geo.GetGeometryRef(0);
+                                int pointCount = ring.GetPointCount();
+
+                                for (int j = 0; j < pointCount; ++j)
+                                {
+
+                                    double[] pointList = { 0, 0 };
+                                    ring.GetPoint_2D(j, pointList);
                             
-                                latitudesOut.Add( pointList[1], path );
-                                longitudesOut.Add( pointList[0], path );
+                                    latitudesOut.Add( pointList[1], path );
+                                    longitudesOut.Add( pointList[0], path );
+
+                                }
 
                             }
+
+                        }
+
+                        else if( geoType == "wkbLineString" )
+                        {
+
+                            for( int i = 0; i < numberOfFeatures; ++i )
+                            {
+
+                                path = new GH_Path(i);
+                                feature = layer.GetFeature(i);
+                                geo = feature.GetGeometryRef();
+                                int pointCount = geo.GetPointCount();
+
+                                for (int j = 0; j < pointCount; ++j)
+                                {
+
+                                    double[] pointList = { 0, 0 };
+                                    geo.GetPoint_2D(j, pointList);
+                            
+                                    latitudesOut.Add( pointList[1], path );
+                                    longitudesOut.Add( pointList[0], path );
+
+                                }
+
+                            }
+
+                        }
+
+                        else
+                        {
+
+                            output = "Geometry type not implemented yet";
 
                         }
 
@@ -150,36 +190,85 @@ namespace ReadGeoJSONMetaData
                         double[][] latMat = new double[numberOfFeatures][];
                         double[][] lonMat = new double[numberOfFeatures][];
 
-                        for( int i = 0; i < numberOfFeatures; ++i )
-                        {
+                        if( geoType == "wkbPolygon" )
+                        { 
 
-                            path = new GH_Path(i);
-                            feature = layer.GetFeature(i);
-                            geo = feature.GetGeometryRef();
-                            ring = geo.GetGeometryRef(0);
-                            int pointCount = ring.GetPointCount();
+                            for( int i = 0; i < numberOfFeatures; ++i )
+                            {
 
-                            latMat[i] = new double[pointCount];
-                            lonMat[i] = new double[pointCount];
+                                path = new GH_Path(i);
+                                feature = layer.GetFeature(i);
+                                geo = feature.GetGeometryRef();
+                                ring = geo.GetGeometryRef(0);
+                                int pointCount = ring.GetPointCount();
+
+                                latMat[i] = new double[pointCount];
+                                lonMat[i] = new double[pointCount];
                             
-                            System.Threading.Tasks.Parallel.For(0, pointCount, j =>
-                            {
+                                System.Threading.Tasks.Parallel.For(0, pointCount, j =>
+                                {
 
-                                double[] pointList = { 0, 0 };
-                                ring.GetPoint_2D(j, pointList);
+                                    double[] pointList = { 0, 0 };
+                                    ring.GetPoint_2D(j, pointList);
 
-                                latMat[i][j] = pointList[1];
-                                lonMat[i][j] = pointList[0];
+                                    latMat[i][j] = pointList[1];
+                                    lonMat[i][j] = pointList[0];
 
-                            });
+                                });
 
-                            if( pointCount > 0 )
-                            {
+                                if( pointCount > 0 )
+                                {
 
-                                latitudesOut.AddRange( latMat[i], path );
-                                longitudesOut.AddRange( lonMat[i], path );
+                                    latitudesOut.AddRange( latMat[i], path );
+                                    longitudesOut.AddRange( lonMat[i], path );
+
+                                }
 
                             }
+
+                        }
+
+                        else if( geoType == "wkbLineString" )
+                        {
+                            
+                            for( int i = 0; i < numberOfFeatures; ++i )
+                            {
+
+                                path = new GH_Path(i);
+                                feature = layer.GetFeature(i);
+                                geo = feature.GetGeometryRef();
+                                int pointCount = geo.GetPointCount();
+
+                                latMat[i] = new double[pointCount];
+                                lonMat[i] = new double[pointCount];
+
+                                System.Threading.Tasks.Parallel.For( 0, pointCount, j => 
+                                {
+
+                                    double[] pointList = { 0, 0 };
+                                    geo.GetPoint_2D( j, pointList );
+
+                                    latMat[i][j] = pointList[1];
+                                    lonMat[i][j] = pointList[0];
+
+                                });
+
+                                if( pointCount > 0 )
+                                {
+
+                                    latitudesOut.AddRange( latMat[i], path );
+                                    longitudesOut.AddRange( lonMat[i], path );
+
+                                }
+
+                            }
+
+                        }
+
+                        else
+                        {
+
+                            output = "Geometry type not implemented yet";
 
                         }
 
