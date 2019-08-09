@@ -120,6 +120,8 @@ namespace ReadGeoJSONMetaData
                     OSGeo.OGR.Feature feature = null;
                     OSGeo.OGR.Geometry geo = null, ring = null;
 
+                    double[] pointList = { 0, 0, 0 };
+
                     if( parallel == false )
                     {
 
@@ -137,8 +139,7 @@ namespace ReadGeoJSONMetaData
 
                                 for (int j = 0; j < pointCount; ++j)
                                 {
-
-                                    double[] pointList = { 0, 0, 0 };
+                                    
                                     ring.GetPoint(j, pointList);
                             
                                     latitudesOut.Add( pointList[1], path );
@@ -164,8 +165,7 @@ namespace ReadGeoJSONMetaData
 
                                 for (int j = 0; j < pointCount; ++j)
                                 {
-
-                                    double[] pointList = { 0, 0, 0 };
+                                    
                                     geo.GetPoint(j, pointList);
                             
                                     latitudesOut.Add( pointList[1], path );
@@ -178,8 +178,11 @@ namespace ReadGeoJSONMetaData
 
                         }
 
-                        else if( geoType == "wkbPoint" )
+                        else if( geoType == "wkbPoint" || geoType == "wkbPoint25D" )
                         {
+
+                            // TODO add reprojections if needed.
+                            //OSGeo.OSR.CoordinateTransformation.TransformPoint(  )
 
                             for( int i = 0; i < numberOfFeatures; ++i )
                             {
@@ -192,8 +195,6 @@ namespace ReadGeoJSONMetaData
                                     feature = layer.GetFeature(i);
 
                                     geo = feature.GetGeometryRef();
-
-                                    double[] pointList = { 0, 0, 0 };
 
                                     geo.GetPoint(0, pointList);
 
@@ -226,14 +227,14 @@ namespace ReadGeoJSONMetaData
                     else
                     {
 
-                        double[][] latMat = new double[numberOfFeatures][];
-                        double[][] lonMat = new double[numberOfFeatures][];
-                        double[][] altMat = new double[numberOfFeatures][];
-
                         if( geoType == "wkbPolygon" )
-                        { 
+                        {
 
-                            for( int i = 0; i < numberOfFeatures; ++i )
+                            double[][] latMat = new double[numberOfFeatures][];
+                            double[][] lonMat = new double[numberOfFeatures][];
+                            double[][] altMat = new double[numberOfFeatures][];
+
+                            for ( int i = 0; i < numberOfFeatures; ++i )
                             {
 
                                 path = new GH_Path(i);
@@ -248,8 +249,7 @@ namespace ReadGeoJSONMetaData
 
                                 System.Threading.Tasks.Parallel.For(0, pointCount, j =>
                                 {
-
-                                    double[] pointList = { 0, 0, 0 };
+                                    
                                     ring.GetPoint(j, pointList);
 
                                     latMat[i][j] = pointList[1];
@@ -273,8 +273,12 @@ namespace ReadGeoJSONMetaData
 
                         else if( geoType == "wkbLineString" )
                         {
-                            
-                            for( int i = 0; i < numberOfFeatures; ++i )
+
+                            double[][] latMat = new double[numberOfFeatures][];
+                            double[][] lonMat = new double[numberOfFeatures][];
+                            double[][] altMat = new double[numberOfFeatures][];
+
+                            for ( int i = 0; i < numberOfFeatures; ++i )
                             {
 
                                 path = new GH_Path(i);
@@ -288,8 +292,7 @@ namespace ReadGeoJSONMetaData
 
                                 System.Threading.Tasks.Parallel.For( 0, pointCount, j => 
                                 {
-
-                                    double[] pointList = { 0, 0, 0 };
+                                    
                                     geo.GetPoint( j, pointList );
 
                                     latMat[i][j] = pointList[1];
@@ -306,6 +309,40 @@ namespace ReadGeoJSONMetaData
                                     altitudesOut.AddRange( altMat[i], path );
 
                                 }
+
+                            }
+
+                        }
+
+                        else if( geoType == "wkbPoint" || geoType == "wkbPoint25D" )
+                        {
+
+                            double[] latMat = new double[numberOfFeatures];
+                            double[] lonMat = new double[numberOfFeatures];
+                            double[] altMat = new double[numberOfFeatures];
+
+                            System.Threading.Tasks.Parallel.For( 0, numberOfFeatures, i => 
+                            {
+
+                                feature = layer.GetFeature(i);
+
+                                geo = feature.GetGeometryRef();
+                                geo.GetPoint( 0, pointList );
+
+                                latMat[i] = pointList[1];
+                                lonMat[i] = pointList[0];
+                                altMat[i] = pointList[2];
+
+                            });
+
+                            for( int i = 0; i < numberOfFeatures; ++i )
+                            {
+
+                                path = new GH_Path(i);
+
+                                latitudesOut.Add( latMat[i], path );
+                                longitudesOut.Add( lonMat[i], path );
+                                altitudesOut.Add( altMat[i], path );
 
                             }
 

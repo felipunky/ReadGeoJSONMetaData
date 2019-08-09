@@ -17,3 +17,4 @@ C:\Users\Paula\Documents\Visual Studio 2017\Projects\ReadGeoJSONMetaData\ReadGeo
 C:\Users\Paula\Documents\Visual Studio 2017\Projects\ReadGeoJSONMetaData\ReadGeoJSONMetaData\bin\osr_csharp.dll
 C:\Users\Paula\Documents\Visual Studio 2017\Projects\ReadGeoJSONMetaData\ReadGeoJSONMetaData\obj\Release\ReadGeoJSONMetaData.dll
 C:\Users\Paula\Documents\Visual Studio 2017\Projects\ReadGeoJSONMetaData\ReadGeoJSONMetaData\obj\Release\ReadGeoJSONMetaData.pdb
+C:\Users\Paula\Documents\Visual Studio 2017\Projects\ReadGeoJSONMetaData\ReadGeoJSONMetaData\obj\Release\ReadGeoJSONMetaData.csprojResolveAssemblyReference.cache
