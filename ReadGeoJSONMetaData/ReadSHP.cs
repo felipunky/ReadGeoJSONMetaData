@@ -42,6 +42,7 @@ namespace ReadGeoJSONMetaData
             pManager.AddNumberParameter("Latitude of geometry", "Latitude", "Gets the latitudes of the geometry", GH_ParamAccess.tree);
             pManager.AddNumberParameter("Longitude of geometry", "Longitude", "Gets the longitude of the geometry", GH_ParamAccess.tree);
             pManager.AddNumberParameter("Altitude of geometry", "Altitude", "Gets the altitude of the geometry", GH_ParamAccess.tree);
+            pManager.AddBooleanParameter("Cull pattern", "CullP", "Outputs a cull pattern, so that all data coincide", GH_ParamAccess.tree);
 
         }
 
@@ -102,6 +103,7 @@ namespace ReadGeoJSONMetaData
                 {
                    
                     Grasshopper.DataTree<double> latitudesOut = new Grasshopper.DataTree<double>(), longitudesOut = new Grasshopper.DataTree<double>(), altitudesOut = new Grasshopper.DataTree<double>();
+                    Grasshopper.DataTree<bool> cullPattern = new Grasshopper.DataTree<bool>();
 
                     long numberOfFeatures = 0;
 
@@ -137,6 +139,8 @@ namespace ReadGeoJSONMetaData
                                 ring = geo.GetGeometryRef(0);
                                 int pointCount = ring.GetPointCount();
 
+                                cullPattern.Add( pointCount > 0 ? true : false, path );
+
                                 for (int j = 0; j < pointCount; ++j)
                                 {
                                     
@@ -162,6 +166,8 @@ namespace ReadGeoJSONMetaData
                                 feature = layer.GetFeature(i);
                                 geo = feature.GetGeometryRef();
                                 int pointCount = geo.GetPointCount();
+
+                                cullPattern.Add( pointCount > 0 ? true : false, path );
 
                                 for (int j = 0; j < pointCount; ++j)
                                 {
@@ -250,7 +256,7 @@ namespace ReadGeoJSONMetaData
                                 System.Threading.Tasks.Parallel.For(0, pointCount, j =>
                                 {
                                     
-                                    ring.GetPoint(j, pointList);
+                                    layer.GetFeature(i).GetGeometryRef().GetPoint(j, pointList);
 
                                     latMat[i][j] = pointList[1];
                                     lonMat[i][j] = pointList[0];
@@ -264,6 +270,14 @@ namespace ReadGeoJSONMetaData
                                     latitudesOut.AddRange( latMat[i], path );
                                     longitudesOut.AddRange( lonMat[i], path );
                                     altitudesOut.AddRange( altMat[i], path );
+                                    cullPattern.Add( true, path );
+
+                                }
+
+                                else
+                                {
+
+                                    cullPattern.Add( false, path );
 
                                 }
 
@@ -277,6 +291,7 @@ namespace ReadGeoJSONMetaData
                             double[][] latMat = new double[numberOfFeatures][];
                             double[][] lonMat = new double[numberOfFeatures][];
                             double[][] altMat = new double[numberOfFeatures][];
+                            OSGeo.OGR.Geometry[] g = new OSGeo.OGR.Geometry[numberOfFeatures];
 
                             for ( int i = 0; i < numberOfFeatures; ++i )
                             {
@@ -284,6 +299,9 @@ namespace ReadGeoJSONMetaData
                                 path = new GH_Path(i);
                                 feature = layer.GetFeature(i);
                                 geo = feature.GetGeometryRef();
+
+                                g[i] = geo;
+
                                 int pointCount = geo.GetPointCount();
 
                                 latMat[i] = new double[pointCount];
@@ -293,7 +311,9 @@ namespace ReadGeoJSONMetaData
                                 System.Threading.Tasks.Parallel.For( 0, pointCount, j => 
                                 {
                                     
-                                    geo.GetPoint( j, pointList );
+                                    g[i].GetPoint( j, pointList );
+
+                                    
 
                                     latMat[i][j] = pointList[1];
                                     lonMat[i][j] = pointList[0];
@@ -307,6 +327,14 @@ namespace ReadGeoJSONMetaData
                                     latitudesOut.AddRange( latMat[i], path );
                                     longitudesOut.AddRange( lonMat[i], path );
                                     altitudesOut.AddRange( altMat[i], path );
+                                    cullPattern.Add( true, path );
+
+                                }
+
+                                else
+                                {
+
+                                    cullPattern.Add( false, path );
 
                                 }
 
@@ -324,10 +352,10 @@ namespace ReadGeoJSONMetaData
                             System.Threading.Tasks.Parallel.For( 0, numberOfFeatures, i => 
                             {
 
-                                feature = layer.GetFeature(i);
+                                //feature = layer.GetFeature(i);
 
-                                geo = feature.GetGeometryRef();
-                                geo.GetPoint( 0, pointList );
+                                //geo = feature.GetGeometryRef();
+                                layer.GetFeature(i).GetGeometryRef().GetPoint( 0, pointList );
 
                                 latMat[i] = pointList[1];
                                 lonMat[i] = pointList[0];
@@ -360,6 +388,7 @@ namespace ReadGeoJSONMetaData
                     DA.SetDataTree( 1, latitudesOut );
                     DA.SetDataTree( 2, longitudesOut );
                     DA.SetDataTree( 3, altitudesOut );
+                    DA.SetDataTree( 4, cullPattern );
 
                 }
 
